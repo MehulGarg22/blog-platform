@@ -69,6 +69,18 @@ export default function Navbar() {
                     >
                     {localStorage.getItem("email")}
                     </p>
+                    <p
+                    style={{
+                        cursor: 'default',
+                        color: 'black',
+                        fontWeight: 'bold',
+                        marginLeft: '10px',
+                        marginTop: '2%',
+                        fontSize: '15px',
+                    }}
+                    >
+                    {localStorage.getItem("token")}
+                    </p>
                 </div>
                 </Menu>
             </div>

@@ -117,6 +117,7 @@ export default function LandingPage() {
         setLoginLoading(false);
         if(res.data.statusCode===200){
           localStorage.setItem("email", res.data.email)
+          localStorage.setItem("token", res.data.body)
           navigate("/dashboard");
         }else{
           setMessage('Login Failed')

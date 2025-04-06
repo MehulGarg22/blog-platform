@@ -23,7 +23,7 @@ export default function Dashboard(){
     const [type, setType] = useState("");
     const [message, setMessage] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
-
+    const [expandedRowKeys, setExpandedRowKeys] = useState([]);
     let S3_URL;
 
     const blogGetApi="https://bhrn03t9n2.execute-api.us-east-1.amazonaws.com/blog/get"
@@ -135,14 +135,14 @@ export default function Dashboard(){
         axios.post(blogUpdateApi, params).then((res)=>{
             console.log(res)
             setMessage('Success!');
-            setNotificationDescription('The blog is successfully created');
+            setNotificationDescription('The blog is successfully updated');
             setType('success');
             handleUpdateCancel()
             getBlogs()
         }).catch((err)=>{
             console.log(err)
             setMessage('Oops! Something went wrong.');
-            setNotificationDescription('We were unable to create the blog. Please try again later.');
+            setNotificationDescription('We were unable to update the blog. Please try again later.');
             setType('error');
         })
     }
@@ -204,6 +204,12 @@ export default function Dashboard(){
             render: (text, record) =><Button onClick={(e)=>handleUpdateBlog(text.blogId)} >Update</Button>
         },
     ];
+
+
+    const onExpand = (expanded, record) => {
+        const keys = expanded ? [record.blogId] : [];
+        setExpandedRowKeys(keys);
+    };
 
     return (
         <div>
@@ -383,12 +389,15 @@ export default function Dashboard(){
                     columns={columns}
                     expandable={{
                         expandedRowRender: record => <p style={{ margin: 0 }}>{record.description}</p>,
-                        rowExpandable: record => record.name !== 'Not Expandable',
+                        rowExpandable: record => true,
+                        expandedRowKeys: expandedRowKeys,
+                        onExpand: onExpand,
                     }}
                     dataSource={blogData}
                     bordered
                     loading={tableLoading}
-                    style={{margin:'20px'}}
+                    style={{ margin: '20px' }}
+                    rowKey="blogId"
                 />
             </div>
 
