@@ -140,7 +140,7 @@ export default function LandingPage() {
     setType('');
     console.log("Signup", name, email, newPassword, confirmPassword)
     setLoading(true);
-    if(email==="" || newPassword==="" || confirmPassword ==="" || name==="" || !isValid){
+    if(email==="" || newPassword==="" || confirmPassword ==="" || !isValid){
       
       setMessage('Missing Required Information')
       setDescription(`Please complete all the necessary information to finish your registration. Additionally, your password must adhere to the policy described in 'i' button.`)
@@ -148,13 +148,13 @@ export default function LandingPage() {
       setLoading(false);
     }
     else{
-      axios.post("https://0d7ti9fw58.execute-api.us-east-1.amazonaws.com/vega_signin/validate-login-user",{
+      axios.post("https://hy8c9rkyw8.execute-api.us-east-1.amazonaws.com/blog/signup",{
         email: email,
-        password: password
+        password: newPassword
       }).then((res)=>{
         console.log("response", res)
         setMessage('Signup Successful!')
-        setDescription('Welcome to CloudX Suite! You can now log in and explore.')
+        setDescription('Welcome to Blog platform! You can now log in and explore.')
         setType('success')
         setLoginLoading(false);
       }).catch((err)=>{

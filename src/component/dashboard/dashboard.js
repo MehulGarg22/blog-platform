@@ -9,6 +9,8 @@ export default function Dashboard(){
 
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
     const [title, setTitle] = useState("");
     const [blogData, setBlogData] = useState("");
     const [updateBlogId, setUpdateBlogId] = useState("");
@@ -46,15 +48,15 @@ export default function Dashboard(){
     const handleUpdateBlog=(value)=>{
         console.log("Update blogID: ", value)
         setUpdateBlogId(value)
-        setIsModalOpen(true);
+        setIsUpdateModalOpen(true);
     }
     
     const handleUpdateOk = () => {
-        setIsModalOpen(false);
+        setIsUpdateModalOpen(false);
     };
 
     const handleUpdateCancel = () => {
-        setIsModalOpen(false);
+        setIsUpdateModalOpen(false);
     };
 
 
@@ -273,7 +275,7 @@ export default function Dashboard(){
 
 
 
-            <Modal open={isModalOpen} onOk={handleUpdateOk} onCancel={handleUpdateCancel}
+            <Modal open={isUpdateModalOpen} onOk={handleUpdateOk} onCancel={handleUpdateCancel}
                 footer={[
                 <ConfigProvider
                     theme={{                                                    // To change color of antd buttons
