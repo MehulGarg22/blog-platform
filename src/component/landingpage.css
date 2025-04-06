@@ -1,0 +1,18 @@
+.input-container {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+.input-field {
+  width: 65%;
+  margin-left: 1%;
+  padding: 10px;
+  border-radius: 12px;
+  outline: none;
+  border: 1px solid #515f5f;
+}
+  
+.input-field:focus {
+  border: 2px solid #515f5f;
+}
