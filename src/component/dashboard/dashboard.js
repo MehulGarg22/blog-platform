@@ -10,8 +10,10 @@ export default function Dashboard(){
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [title, setTitle] = useState("");
-    const [blogData, setBlogData] = useState();
-    const [blogId, setBlogId] = useState("");
+    const [blogData, setBlogData] = useState("");
+    const [updateBlogId, setUpdateBlogId] = useState("");
+    const [updateTitle, setUpdateTitle] = useState("");
+    const [updateDescription, setUpdateDescription] = useState("");
     const [description, setDescription] = useState("");
     const [file, setFile] = useState();
     const [tableLoading, setTableLoading]=useState(false)
@@ -41,7 +43,9 @@ export default function Dashboard(){
     };
 
 
-    const handleUpdateBlog=()=>{
+    const handleUpdateBlog=(value)=>{
+        console.log("Update blogID: ", value)
+        setUpdateBlogId(value)
         setIsModalOpen(true);
     }
     
@@ -122,15 +126,17 @@ export default function Dashboard(){
         console.log("title, description: ", email, title, description)
         const params={
             email: email,
-            blogId: blogId,
-            title: title,
-            description: description
+            blogId: updateBlogId,
+            title: updateTitle,
+            description: updateDescription
           }
         axios.post(blogUpdateApi, params).then((res)=>{
             console.log(res)
             setMessage('Success!');
             setNotificationDescription('The blog is successfully created');
             setType('success');
+            handleUpdateCancel()
+            getBlogs()
         }).catch((err)=>{
             console.log(err)
             setMessage('Oops! Something went wrong.');
@@ -193,7 +199,7 @@ export default function Dashboard(){
             title: 'Action',
             dataIndex: '',
             key: 'x',
-            render: (text, record) =><Button onClick={handleNewBlog} >Update</Button>
+            render: (text, record) =><Button onClick={(e)=>handleUpdateBlog(text.blogId)} >Update</Button>
         },
     ];
 
@@ -278,8 +284,8 @@ export default function Dashboard(){
                     },
                     }}
                 >
-                    <Button type="primary" loading={loading} onClick={handleNewBlogSubmit}>
-                        Save 
+                    <Button type="primary" loading={loading} onClick={handleUpdateBlogSubmit}>
+                        Save update
                     </Button>
                 </ConfigProvider>
                 ]}
@@ -291,7 +297,7 @@ export default function Dashboard(){
                         <div style={{display:'flex'}}>                  
                         <Input 
                             onChange={(event) => {
-                                setTitle(event.target.value);
+                                setUpdateTitle(event.target.value);
                             }}
                         />
                         <Tooltip placement="top" title="Enter Blog Title" >
@@ -305,7 +311,7 @@ export default function Dashboard(){
                         <div style={{display:'flex'}}>
                         <TextArea rows={4} 
                             onChange={(event) => {
-                                setDescription(event.target.value);
+                                setUpdateDescription(event.target.value);
                             }}
                         />
                         <Tooltip style={{whiteSpace: 'pre-line'}} placement="top" title="Enter Blog Description" >
