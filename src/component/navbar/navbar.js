@@ -73,13 +73,12 @@ export default function Navbar() {
                     style={{
                         cursor: 'default',
                         color: 'black',
-                        fontWeight: 'bold',
-                        marginLeft: '10px',
                         marginTop: '2%',
-                        fontSize: '15px',
+                        fontSize: '10px',
+                        textWrap:'wrap'
                     }}
                     >
-                    {localStorage.getItem("token")}
+                     Token-  {localStorage.getItem("token")}
                     </p>
                 </div>
                 </Menu>
