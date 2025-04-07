@@ -19,7 +19,7 @@ export default function Navbar() {
                     <img src={logo} style={{height:'50px', width:'60px', marginLeft:'90%'}} />
                 </span>
                 <span style={{marginLeft:'60px', marginTop:'6px', fontSize:'25px', fontWeight:'bold'}}>
-                    Blog Platform
+                   ConnectCloud Blogs
                 </span>
             </div>
             <div style={{marginLeft:'75vw'}}>

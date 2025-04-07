@@ -155,7 +155,7 @@ export default function LandingPage() {
       }).then((res)=>{
         console.log("response", res)
         setMessage('Signup Successful!')
-        setDescription('Welcome to Blog platform! You can now log in and explore.')
+        setDescription('Welcome to ConnectCloud Blogs! You can now log in and explore.')
         setType('success')
         setLoginLoading(false);
       }).catch((err)=>{
@@ -205,7 +205,7 @@ export default function LandingPage() {
             <img src={logo} style={{height:'50px', width:'60px', marginLeft:'90%',}} />
           </span>
           <span style={{marginLeft:'60px', marginTop:'9px', fontSize:'20px', fontWeight:'bold'}}>
-              Blog Platform
+          ConnectCloud Blogs
           </span>
         </div>
 
@@ -390,7 +390,7 @@ export default function LandingPage() {
             }}
           >
             <div style={{ fontWeight: "bold", color: "#a51d4a", marginBottom:'60px', fontSize:'40px' }}>  
-              Blog Platform
+              ConnectCloud Blogs
             </div>
             <span style={{ fontWeight: "bold", color: "#a51d4a" }}>
               {" "}
