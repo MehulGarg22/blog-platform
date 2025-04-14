@@ -24,7 +24,7 @@ export default function LandingPage() {
   const [type, setType]=useState("")
   const [message, setMessage]=useState("")
   const [description, setDescription]=useState("")
-  const [file, setFile] = useState();
+  const [file, setFile] = useState(null);
   let S3=""
   const [isValid, setIsValid] = useState(true);
   const navigate = useNavigate();
@@ -142,26 +142,30 @@ export default function LandingPage() {
 
   const handleSignUpImages=()=>{
     console.log("file name", file)
-    axios.post(imageUploadAPI,{
-      email: email,
-      filename: file.name,
-      contentType: "image/png"
-    }).then((res)=>{
-      console.log("Presigned url", res)
-      S3=res.data.presignedUrl
-      axios.put(S3, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
+    if(file!==null){
+      axios.post(imageUploadAPI,{
+        email: email,
+        filename: file.name,
+        contentType: "image/png"
       }).then((res)=>{
-        console.log("Uploaded file", res.statusText)
+        console.log("Presigned url", res)
+        S3=res.data.presignedUrl
+        axios.put(S3, file, {
+          headers: {
+            "Content-Type": file.type,
+          },
+        }).then((res)=>{
+          console.log("Uploaded file", res.statusText)
+        }).catch((err)=>{
+          console.log("error", err)
+        })
+        handleSignupSubmit(res.data.filePath)
       }).catch((err)=>{
         console.log("error", err)
       })
-      handleSignupSubmit(res.data.filePath)
-    }).catch((err)=>{
-      console.log("error", err)
-    })
+    }else{
+      handleSignupSubmit(null)
+    }
   }
 
   const handleSignupSubmit = async(filePath) => {

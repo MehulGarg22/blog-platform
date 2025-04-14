@@ -41,9 +41,13 @@ export default function Navbar() {
                     >
                         {console.log("Image", localStorage.getItem("profilePicture"))}
                         {
-                            localStorage.getItem("profilePicture") ?
-                                <img src={localStorage.getItem("profilePicture")} style={{height:'80%', width:'50%', borderRadius:'30px'}} /> :
-                                <img src={UserOutlined} style={{height:'80%', width:'50%', borderRadius:'30px'}} />
+                            localStorage.getItem("profilePicture")==="null" ? 
+                                <div style={{fontSize:'30px'}}>
+                                    <UserOutlined />
+                                </div>
+                                :
+                                <img src={localStorage.getItem("profilePicture")} style={{height:'80%', width:'50%', borderRadius:'30px'}} />
+                                
                         }
                     </div>
                 }
