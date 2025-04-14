@@ -1,7 +1,6 @@
-import react,{useEffect, useState} from "react";
-import { Tooltip, Input, Modal, Button, ConfigProvider, Form, Upload, Table , Popconfirm  } from "antd";
+import {useEffect, useState} from "react";
+import { Tooltip, Input, Modal, Button, ConfigProvider, Form, Table , Popconfirm  } from "antd";
 import { IoMdInformationCircleOutline } from "react-icons/io";
-import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import Notification from "../features/notification";
 
@@ -10,7 +9,6 @@ export default function Dashboard(){
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-
     const [title, setTitle] = useState("");
     const [blogData, setBlogData] = useState("");
     const [updateBlogId, setUpdateBlogId] = useState("");
@@ -24,7 +22,7 @@ export default function Dashboard(){
     const [message, setMessage] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
     const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-    let S3_URL;
+
 
     const blogGetApi="https://bhrn03t9n2.execute-api.us-east-1.amazonaws.com/blog/get"
     const blogUpdateApi="https://vh3i6tcigl.execute-api.us-east-1.amazonaws.com/blog/update"

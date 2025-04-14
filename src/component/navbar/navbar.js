@@ -14,12 +14,12 @@ export default function Navbar() {
     {
         location.pathname !=="/" && (
         <div style={{display:'flex'}}>
-            <div style={{display:'flex'}}>
+            <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                 <span>
-                    <img src={logo} style={{height:'50px', width:'60px', marginLeft:'90%'}} />
+                    <img src={logo} style={{ height: '50px', width: '60px', marginLeft: '10px' }} alt="Logo" />
                 </span>
-                <span style={{marginLeft:'60px', marginTop:'6px', fontSize:'25px', fontWeight:'bold'}}>
-                   ConnectCloud Blogs
+                <span style={{ marginLeft: '10px', fontSize: '25px', fontWeight: 'bold' }}>
+                    ConnectCloud Blogs
                 </span>
             </div>
             <div style={{marginLeft:'75vw'}}>
@@ -34,19 +34,17 @@ export default function Navbar() {
                     style={{
                         color: 'black',
                         cursor: 'pointer',
-                        fontSize: '30px',
-                        marginLeft: '9%',
                         marginTop: '5px',
                         marginBottom: '1px',
-                        backgroundColor: 'white', // Trigger background
-                        height: '50px',
-                        width: '50px',
                         display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
                     }}
                     >
-                        <img src={logo} style={{height:'50px', width:'60px', marginLeft:'0%'}} />
+                        {console.log("Image", localStorage.getItem("profilePicture"))}
+                        {
+                            localStorage.getItem("profilePicture") ?
+                                <img src={localStorage.getItem("profilePicture")} style={{height:'80%', width:'50%', borderRadius:'30px'}} /> :
+                                <img src={UserOutlined} style={{height:'80%', width:'50%', borderRadius:'30px'}} />
+                        }
                     </div>
                 }
                 >
@@ -69,17 +67,7 @@ export default function Navbar() {
                     >
                     {localStorage.getItem("email")}
                     </p>
-                    <p
-                    style={{
-                        cursor: 'default',
-                        color: 'black',
-                        marginTop: '2%',
-                        fontSize: '10px',
-                        textWrap:'wrap'
-                    }}
-                    >
-                     Token-  {localStorage.getItem("token")}
-                    </p>
+
                 </div>
                 </Menu>
             </div>

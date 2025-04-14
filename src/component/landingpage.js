@@ -25,7 +25,7 @@ export default function LandingPage() {
   const [message, setMessage]=useState("")
   const [description, setDescription]=useState("")
   const [file, setFile] = useState();
-
+  let S3=""
   const [isValid, setIsValid] = useState(true);
   const navigate = useNavigate();
 
@@ -36,6 +36,8 @@ export default function LandingPage() {
     hasNumber: true,
     hasSymbol: true,
   };
+
+  const imageUploadAPI="https://3i3kymkh19.execute-api.us-east-1.amazonaws.com/user-image/get-presigned-url"
 
   const validatePassword = (_, value) => {
     if (!value) {
@@ -113,11 +115,12 @@ export default function LandingPage() {
         email: username,
         password: password
       }).then((res)=>{
-        console.log("response", res)
+        console.log("response signin", res)
         setLoginLoading(false);
         if(res.data.statusCode===200){
           localStorage.setItem("email", res.data.email)
           localStorage.setItem("token", res.data.body)
+          localStorage.setItem("profilePicture", res.data.filePath)
           navigate("/dashboard");
         }else{
           setMessage('Login Failed')
@@ -136,8 +139,33 @@ export default function LandingPage() {
     }
   };
 
-  const handleSignupSubmit = async(e) => {
-    e.preventDefault();
+
+  const handleSignUpImages=()=>{
+    console.log("file name", file)
+    axios.post(imageUploadAPI,{
+      email: email,
+      filename: file.name,
+      contentType: "image/png"
+    }).then((res)=>{
+      console.log("Presigned url", res)
+      S3=res.data.presignedUrl
+      axios.put(S3, file, {
+        headers: {
+          "Content-Type": file.type,
+        },
+      }).then((res)=>{
+        console.log("Uploaded file", res.statusText)
+      }).catch((err)=>{
+        console.log("error", err)
+      })
+      handleSignupSubmit(res.data.filePath)
+    }).catch((err)=>{
+      console.log("error", err)
+    })
+  }
+
+  const handleSignupSubmit = async(filePath) => {
+    console.log("Presigned url is: ", S3, filePath)
     setType('');
     console.log("Signup", name, email, newPassword, confirmPassword)
     setLoading(true);
@@ -151,7 +179,8 @@ export default function LandingPage() {
     else{
       axios.post("https://hy8c9rkyw8.execute-api.us-east-1.amazonaws.com/blog/signup",{
         email: email,
-        password: newPassword
+        password: newPassword,
+        filePath: filePath
       }).then((res)=>{
         console.log("response", res)
         setMessage('Signup Successful!')
@@ -251,7 +280,7 @@ export default function LandingPage() {
                   },
                 }}
               >
-                <Button type="primary" loading={loading} onClick={handleSignupSubmit}>
+                <Button type="primary" loading={loading} onClick={handleSignUpImages}>
                   Submit
                 </Button>
               </ConfigProvider>
