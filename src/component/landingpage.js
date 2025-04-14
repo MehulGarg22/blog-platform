@@ -37,7 +37,7 @@ export default function LandingPage() {
     hasSymbol: true,
   };
 
-  const imageUploadAPI="https://3i3kymkh19.execute-api.us-east-1.amazonaws.com/user-image/get-presigned-url"
+  const imageUploadAPI="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/get-presigned-url"
 
   const validatePassword = (_, value) => {
     if (!value) {
@@ -111,7 +111,7 @@ export default function LandingPage() {
       setLoginLoading(false);
     }
     else{
-      axios.post("https://0d7ti9fw58.execute-api.us-east-1.amazonaws.com/vega_signin/validate-login-user",{
+      axios.post("https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/signin",{
         email: username,
         password: password
       }).then((res)=>{
@@ -181,7 +181,7 @@ export default function LandingPage() {
       setLoading(false);
     }
     else{
-      axios.post("https://hy8c9rkyw8.execute-api.us-east-1.amazonaws.com/blog/signup",{
+      axios.post("https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/signup",{
         email: email,
         password: newPassword,
         filePath: filePath

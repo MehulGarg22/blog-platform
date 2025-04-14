@@ -24,11 +24,10 @@ export default function Dashboard(){
     const [expandedRowKeys, setExpandedRowKeys] = useState([]);
 
 
-    const blogGetApi="https://bhrn03t9n2.execute-api.us-east-1.amazonaws.com/blog/get"
-    const blogUpdateApi="https://vh3i6tcigl.execute-api.us-east-1.amazonaws.com/blog/update"
-    const blogPostApi="https://vvwjgbbsqj.execute-api.us-east-1.amazonaws.com/blog/post"
-    const blogDeleteApi="https://m00h3hj1m8.execute-api.us-east-1.amazonaws.com/blog/delete"
-    
+    const blogGetApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/get-blogs"
+    const blogUpdateApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/update"
+    const blogPostApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/post"
+    const blogDeleteApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/delete"
     
     const handleNewBlog=()=>{
         setIsModalOpen(true);
