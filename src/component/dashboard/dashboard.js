@@ -73,7 +73,7 @@ export default function Dashboard(){
 
     const getBlogs=()=>{
         setTableLoading(true)
-        let email=localStorage.getItem("email")
+        let email=sessionStorage.getItem("email")
         const params={
             email: email
         }
@@ -93,7 +93,7 @@ export default function Dashboard(){
 
     const handleNewBlogSubmit=()=>{
         setLoading(true)
-        let email=localStorage.getItem("email")
+        let email=sessionStorage.getItem("email")
         console.log("title, description: ", email, title, description)
         const params={
             email: email,
@@ -121,7 +121,7 @@ export default function Dashboard(){
     }
 
     const handleUpdateBlogSubmit=()=>{
-        let email=localStorage.getItem("email")
+        let email=sessionStorage.getItem("email")
         console.log("title, description: ", email, title, description)
         const params={
             email: email,
@@ -146,7 +146,7 @@ export default function Dashboard(){
 
 
     const handleBlogDelete=(record)=>{
-        let email=localStorage.getItem("email")
+        let email=sessionStorage.getItem("email")
         const params={
             email:email,
             blogId: record

@@ -118,9 +118,9 @@ export default function LandingPage() {
         console.log("response signin", res)
         setLoginLoading(false);
         if(res.data.statusCode===200){
-          localStorage.setItem("email", res.data.email)
-          localStorage.setItem("token", res.data.body)
-          localStorage.setItem("profilePicture", res.data.filePath)
+          sessionStorage.setItem("email", res.data.email)
+          sessionStorage.setItem("token", res.data.body)
+          sessionStorage.setItem("profilePicture", res.data.filePath)
           navigate("/dashboard");
         }else{
           setMessage('Login Failed')
