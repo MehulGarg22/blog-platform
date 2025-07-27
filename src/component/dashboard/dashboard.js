@@ -1,12 +1,11 @@
 import {useEffect, useState} from "react";
-import { Tooltip, Input, Modal, Button, ConfigProvider, Form, Table , Popconfirm  } from "antd";
+import { Tooltip, Input, Modal, Button, ConfigProvider, Form, Table , Popconfirm} from "antd";
+import { FileSyncOutlined, DeleteOutlined } from '@ant-design/icons';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import axios from 'axios';
 import Notification from "../features/notification";
 
 export default function Dashboard(){
-
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [title, setTitle] = useState("");
@@ -22,7 +21,6 @@ export default function Dashboard(){
     const [message, setMessage] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
     const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-
 
     const blogGetApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/get-blogs"
     const blogUpdateApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/update"
@@ -55,10 +53,6 @@ export default function Dashboard(){
     const handleUpdateCancel = () => {
         setIsUpdateModalOpen(false);
     };
-
-
-
-
 
     const { TextArea } = Input;
 
@@ -173,32 +167,30 @@ export default function Dashboard(){
         console.log("title, description: ", title, description)
     }
 
-
     const columns = [
         { title: 'Blog Title', dataIndex: 'title', key: 'title' },
-        { title: 'Blog Description', dataIndex: 'description', key: 'description', align:'center' },
+        { title: 'Blog Description', dataIndex: 'description', key: 'description'},
         {
           title: 'Action',
           dataIndex: '',
           key: 'x',
           render: (text, record) => 
-
-                <Popconfirm
-                    title="Delete the task"
-                    description="Are you sure to delete this task?"
-                    onConfirm={(e)=>handleBlogDelete(text.blogId)}
-                    // onCancel={cancel}
-                    okText="Yes"
-                    cancelText="No"
-                >
-                    <Button danger>Delete</Button>
-                </Popconfirm>
-        },
-        {
-            title: 'Action',
-            dataIndex: '',
-            key: 'x',
-            render: (text, record) =><Button onClick={(e)=>handleUpdateBlog(text.blogId)} >Update</Button>
+                <div style={{display:'flex'}}>
+                    <Popconfirm
+                        title="Delete the task"
+                        description="Are you sure to delete this task?"
+                        onConfirm={(e)=>handleBlogDelete(text.blogId)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Tooltip placement="top" title="Delete Blog">
+                            <p style={{fontSize:'15px', cursor:'pointer', textAlign:'center', color:'red', marginRight:'20px'}}><DeleteOutlined /></p>
+                        </Tooltip>
+                    </Popconfirm>
+                    <Tooltip placement="top" title="Update Blog">
+                        <p style={{fontSize:'15px', cursor:'pointer', textAlign:'center'}} onClick={(e)=>handleUpdateBlog(text.blogId)} ><FileSyncOutlined /></p>
+                    </Tooltip>
+                </div>
         },
     ];
 
@@ -211,15 +203,16 @@ export default function Dashboard(){
     return (
         <div>
             <Notification type={type} message={message} description={notificationDescription} />
+
             <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
                 footer={[
                 <ConfigProvider
                     theme={{                                                    // To change color of antd buttons
-                    token: {
-                        colorPrimary: '#a51d4a',
-                        borderRadius: 6,
-                        colorBgContainer: 'white',
-                    },
+                        token: {
+                            colorPrimary: '#a51d4a',
+                            borderRadius: 6,
+                            colorBgContainer: 'white',
+                        },
                     }}
                 >
                     <Button type="primary" loading={loading} onClick={handleNewBlogSubmit}>
@@ -240,7 +233,7 @@ export default function Dashboard(){
                         />
                         <Tooltip placement="top" title="Enter Blog Title" >
                             <span style={{cursor:'pointer', marginLeft:'10px',fontSize:'20px'}}>
-                            <IoMdInformationCircleOutline/>
+                                <IoMdInformationCircleOutline/>
                             </span>
                         </Tooltip>
                         </div>
@@ -260,7 +253,6 @@ export default function Dashboard(){
                         </div>
                     </Form.Item>
                     <Form.Item name="blogimage" label="Image">
-                        
                         <div style={{display:'flex', marginTop:'5px'}}>
                             <Tooltip style={{whiteSpace: 'pre-line', marginTop:'5px'}} placement="top" title="Upload blog image in jpg/png format" >
                                 <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
@@ -274,9 +266,6 @@ export default function Dashboard(){
                 </Form>
 
             </Modal>
-
-
-
 
             <Modal open={isUpdateModalOpen} onOk={handleUpdateOk} onCancel={handleUpdateCancel}
                 footer={[
@@ -342,17 +331,8 @@ export default function Dashboard(){
 
             </Modal>
 
-
-
-
-
-
-
-
-
             <div>
                 <h1 style={{textAlign:'center'}}>Welcome to Your Dashboard!</h1>
-                
                 <div>
                     <section>
                         <h2 style={{
@@ -397,8 +377,6 @@ export default function Dashboard(){
                     rowKey="blogId"
                 />
             </div>
-
-
         </div>
     )
 }
