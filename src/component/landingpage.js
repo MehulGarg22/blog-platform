@@ -1,52 +1,141 @@
-import React, { useState, useContext } from "react";
-import { FaUserTie  } from "react-icons/fa";
-import { TbPasswordUser  } from "react-icons/tb";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
+import { FaUserTie } from "react-icons/fa";
+import { TbPasswordUser } from "react-icons/tb";
 import './landingpage.css';
 import { IoMdInformationCircleOutline } from "react-icons/io";
-import { Tooltip, Input, Modal, Button, ConfigProvider, Form, } from "antd";
-import { FaUserPlus } from "react-icons/fa6";
+import { Tooltip, Input, Modal, Button, ConfigProvider, Form, Typography, message } from "antd";
+import { FaUserPlus, FaEye, FaEyeSlash } from "react-icons/fa6";
+import { MdCloudUpload } from "react-icons/md";
 import Notification from "./features/notification";
 import axios from 'axios';
-import logo from '../assets/cloudxsuite_logo.png'
+import logo from '../assets/cloudxsuite_logo.png';
 import { useNavigate } from "react-router-dom";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-export default function LandingPage() {
+// Custom hooks for better state management
+const useAuthState = () => {
   const [loading, setLoading] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  return {
+    loading, setLoading,
+    loginLoading, setLoginLoading,
+    username, setUsername,
+    password, setPassword,
+    showPassword, setShowPassword
+  };
+};
+
+const useSignupState = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [ newPassword, setNewPassword] = useState("");
-  const [ confirmPassword, setConfirmPassword] = useState("");
-  const [form] = Form.useForm();
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [type, setType]=useState("")
-  const [message, setMessage]=useState("")
-  const [description, setDescription]=useState("")
   const [file, setFile] = useState(null);
-  let S3=""
   const [isValid, setIsValid] = useState(true);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const passwordPolicy = {
+  return {
+    name, setName,
+    email, setEmail,
+    newPassword, setNewPassword,
+    confirmPassword, setConfirmPassword,
+    isModalOpen, setIsModalOpen,
+    file, setFile,
+    isValid, setIsValid,
+    loading, setLoading
+  };
+};
+
+
+const useNotificationState = () => {
+  const [type, setType] = useState("");
+  const [message, setMessage] = useState("");
+  const [description, setDescription] = useState("");
+  const [emailCopied, setEmailCopied] = useState('');
+  const [passwordCopied, setPasswordCopied] = useState('');
+
+  return {
+    type, setType,
+    message, setMessage,
+    description, setDescription,
+    emailCopied, setEmailCopied,
+    passwordCopied, setPasswordCopied
+  };
+};
+
+// Modern theme configuration
+const modernTheme = {
+  token: {
+    colorPrimary: '#6366f1',
+    colorSuccess: '#10b981',
+    colorWarning: '#f59e0b',
+    colorError: '#ef4444',
+    borderRadius: 12,
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    controlHeight: 44,
+    fontSize: 14,
+  },
+  components: {
+    Button: {
+      borderRadius: 12,
+      fontWeight: 600,
+      controlHeight: 44,
+    },
+    Input: {
+      borderRadius: 12,
+      paddingBlock: 12,
+      paddingInline: 16,
+    },
+    Modal: {
+      borderRadius: 20,
+    },
+    Form: {
+      labelFontSize: 14,
+      labelColor: '#374151',
+      labelFontWeight: 600,
+    },
+  },
+};
+
+export default function LandingPage() {
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const { Text } = Typography;
+
+  // Custom hooks
+  const authState = useAuthState();
+  const signupState = useSignupState();
+  const notificationState = useNotificationState();
+
+  // API endpoints
+  const API_ENDPOINTS = useMemo(() => ({
+    signin: "https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/signin",
+    signup: "https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/signup",
+    imageUpload: "https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/get-presigned-url"
+  }), []);
+
+  // Password policy
+  const passwordPolicy = useMemo(() => ({
     minLength: 8,
     hasUppercase: true,
     hasLowercase: true,
     hasNumber: true,
     hasSymbol: true,
-  };
+  }), []);
 
-  const imageUploadAPI="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/get-presigned-url"
-
-  const validatePassword = (_, value) => {
+  // Password validation
+  const validatePassword = useCallback((_, value) => {
     if (!value) {
-      setIsValid(true); // Don't show error if field is empty
+      signupState.setIsValid(true);
       return Promise.resolve();
     }
 
     const { minLength, hasUppercase, hasLowercase, hasNumber, hasSymbol } = passwordPolicy;
-
     let valid = true;
 
     if (value.length < minLength) valid = false;
@@ -55,464 +144,487 @@ export default function LandingPage() {
     if (hasNumber && !/[0-9]/.test(value)) valid = false;
     if (hasSymbol && !/[!@#$%^&*(),.?":{}|<>]/.test(value)) valid = false;
 
-    setIsValid(valid);
+    signupState.setIsValid(valid);
+    return valid ? Promise.resolve() : Promise.reject('Password does not meet criteria.');
+  }, [passwordPolicy, signupState]);
 
-    if (valid) {
-      return Promise.resolve();
-    } else {
-      return Promise.reject('Password does not meet criteria.');
-    }
-  };
-
-  const tooltipContent = (
-    <div>
-      <p>Password must meet the following criteria:</p>
-      <ul>
-        <li>Minimum length: {passwordPolicy.minLength}</li>
-        {passwordPolicy.hasUppercase && <li>Contains an uppercase letter</li>}
-        {passwordPolicy.hasLowercase && <li>Contains a lowercase letter</li>}
-        {passwordPolicy.hasNumber && <li>Contains a number</li>}
-        {passwordPolicy.hasSymbol && <li>Contains a symbol (@ # $)</li>}
+  // Tooltip content for password policy
+  const tooltipContent = useMemo(() => (
+    <div className="password-tooltip">
+      <p className="tooltip-title">Password must meet the following criteria:</p>
+      <ul className="password-requirements">
+        <li className={signupState.newPassword.length >= passwordPolicy.minLength ? 'requirement-met' : ''}>
+          Minimum length: {passwordPolicy.minLength}
+        </li>
+        <li className={/[A-Z]/.test(signupState.newPassword) ? 'requirement-met' : ''}>
+          Contains an uppercase letter
+        </li>
+        <li className={/[a-z]/.test(signupState.newPassword) ? 'requirement-met' : ''}>
+          Contains a lowercase letter
+        </li>
+        <li className={/[0-9]/.test(signupState.newPassword) ? 'requirement-met' : ''}>
+          Contains a number
+        </li>
+        <li className={/[!@#$%^&*(),.?":{}|<>]/.test(signupState.newPassword) ? 'requirement-met' : ''}>
+          Contains a symbol (@ # $ etc.)
+        </li>
       </ul>
-      {!isValid && <p style={{ color: 'red' }}>Password does not meet criteria.</p>}
+      {!signupState.isValid && (
+        <p className="password-error">Password does not meet criteria.</p>
+      )}
     </div>
-  );
+  ), [signupState.newPassword, signupState.isValid, passwordPolicy]);
 
-  let formData=new FormData();
-  const onfileChange=(e)=>{
-      if(e.target && e.target.files[0]){
-          formData.append("File_Name", e.target.files[0])
-          console.log(formData)
-          setFile(e.target.files[0])
-      }
-  }
-
-  const handleSignup=()=>{
-    setIsModalOpen(true);
-  }
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setType('');
-    setLoginLoading(true);
-    if(username==="" || password===""){
-      setMessage('Missing Credentials')
-      setDescription(`It looks like you're missing either your email or password. Please double-check and try again.`)
-      setType('warning')
-      setLoginLoading(false);
-    }
-    else{
-      axios.post("https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/signin",{
-        email: username,
-        password: password
-      }).then((res)=>{
-        console.log("response signin", res)
-        setLoginLoading(false);
-        if(res.data.statusCode===200){
-          sessionStorage.setItem("email", res.data.email)
-          sessionStorage.setItem("token", res.data.body)
-          sessionStorage.setItem("profilePicture", res.data.filePath)
-          navigate("/dashboard");
-        }else{
-          setMessage('Login Failed')
-          setDescription(`The email or password you entered is incorrect. Please try again.`)
-          setType('error')
-          setLoginLoading(false);
-        }
-        
-      }).catch((err)=>{
-        console.log("error: ", err)
-        setMessage('Login Failed')
-        setDescription(`The email or password you entered is incorrect. Please try again.`)
-        setType('error')
-        setLoginLoading(false);
-      })
-    }
-  };
-
-
-  const handleSignUpImages=()=>{
-    console.log("file name", file)
-    if(file!==null){
-      axios.post(imageUploadAPI,{
-        email: email,
-        filename: file.name,
-        contentType: "image/png"
-      }).then((res)=>{
-        console.log("Presigned url", res)
-        S3=res.data.presignedUrl
-        axios.put(S3, file, {
-          headers: {
-            "Content-Type": file.type,
-          },
-        }).then((res)=>{
-          console.log("Uploaded file", res.statusText)
-        }).catch((err)=>{
-          console.log("error", err)
-        })
-        handleSignupSubmit(res.data.filePath)
-      }).catch((err)=>{
-        console.log("error", err)
-      })
-    }else{
-      handleSignupSubmit(null)
-    }
-  }
-
-  const handleSignupSubmit = async(filePath) => {
-    console.log("Presigned url is: ", S3, filePath)
-    setType('');
-    console.log("Signup", name, email, newPassword, confirmPassword)
-    setLoading(true);
-    if(email==="" || newPassword==="" || confirmPassword ==="" || !isValid){
+  // File upload handler
+  const handleFileChange = useCallback((e) => {
+    if (e.target && e.target.files[0]) {
+      const file = e.target.files[0];
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
       
-      setMessage('Missing Required Information')
-      setDescription(`Please complete all the necessary information to finish your registration. Additionally, your password must adhere to the policy described in 'i' button.`)
-      setType('warning')
-      setLoading(false);
+      if (!validTypes.includes(file.type)) {
+        message.error('Please upload a valid image file (JPG, JPEG, PNG)');
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        message.error('File size must be less than 5MB');
+        return;
+      }
+      
+      signupState.setFile(file);
     }
-    else{
-      axios.post("https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/signup",{
-        email: email,
-        password: newPassword,
+  }, [signupState]);
+
+  // Login handler
+  const handleSubmit = useCallback(async (e) => {
+    e.preventDefault();
+    notificationState.setType('');
+    authState.setLoginLoading(true);
+
+    if (!authState.username || !authState.password) {
+      notificationState.setMessage('Missing Credentials');
+      notificationState.setDescription("It looks like you're missing either your email or password. Please double-check and try again.");
+      notificationState.setType('warning');
+      authState.setLoginLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(API_ENDPOINTS.signin, {
+        email: authState.username,
+        password: authState.password
+      });
+
+      if (response.data.statusCode === 200) {
+        sessionStorage.setItem("email", response.data.email);
+        sessionStorage.setItem("token", response.data.body);
+        sessionStorage.setItem("profilePicture", response.data.filePath);
+        navigate("/dashboard");
+      } else {
+        throw new Error('Invalid credentials');
+      }
+    } catch (error) {
+      notificationState.setMessage('Login Failed');
+      notificationState.setDescription('The email or password you entered is incorrect. Please try again.');
+      notificationState.setType('error');
+    } finally {
+      authState.setLoginLoading(false);
+    }
+  }, [authState, notificationState, API_ENDPOINTS, navigate]);
+
+  // Signup handlers
+  const handleSignup = useCallback(() => {
+    signupState.setIsModalOpen(true);
+  }, [signupState]);
+
+  const handleSignUpImages = useCallback(async () => {
+    if (signupState.file) {
+      try {
+        const response = await axios.post(API_ENDPOINTS.imageUpload, {
+          email: signupState.email,
+          filename: signupState.file.name,
+          contentType: signupState.file.type
+        });
+
+        await axios.put(response.data.presignedUrl, signupState.file, {
+          headers: { "Content-Type": signupState.file.type },
+        });
+
+        handleSignupSubmit(response.data.filePath);
+      } catch (error) {
+        console.error("Image upload error:", error);
+        handleSignupSubmit(null);
+      }
+    } else {
+      handleSignupSubmit(null);
+    }
+  }, [signupState, API_ENDPOINTS]);
+
+  const handleSignupSubmit = useCallback(async (filePath) => {
+    notificationState.setType('');
+    signupState.setLoading(true);
+
+    if (!signupState.email || !signupState.newPassword || !signupState.confirmPassword || !signupState.isValid) {
+      notificationState.setMessage('Missing Required Information');
+      notificationState.setDescription('Please complete all the necessary information to finish your registration. Additionally, your password must adhere to the policy described.');
+      notificationState.setType('warning');
+      signupState.setLoading(false);
+      return;
+    }
+
+    try {
+      await axios.post(API_ENDPOINTS.signup, {
+        email: signupState.email,
+        password: signupState.newPassword,
         filePath: filePath
-      }).then((res)=>{
-        console.log("response", res)
-        setMessage('Signup Successful!')
-        setDescription('Welcome to ConnectCloud Blogs! You can now log in and explore.')
-        setType('success')
-        setLoginLoading(false);
-      }).catch((err)=>{
-        console.log("error: ", err)
-        setMessage('Signup Failed')
-        setDescription('An unexpected error occurred. Please try again later.')
-        setType('error')
-        setLoading(false);
-      })
-      setIsModalOpen(false);
+      });
+
+      notificationState.setMessage('Signup Successful!');
+      notificationState.setDescription('Welcome to ConnectCloud Blogs! You can now log in and explore.');
+      notificationState.setType('success');
+      signupState.setIsModalOpen(false);
+      form.resetFields();
+    } catch (error) {
+      notificationState.setMessage('Signup Failed');
+      notificationState.setDescription('An unexpected error occurred. Please try again later.');
+      notificationState.setType('error');
+    } finally {
+      signupState.setLoading(false);
     }
-  };
+  }, [signupState, notificationState, API_ENDPOINTS, form]);
 
+  // Copy handlers
+  const handleEmailCopy = useCallback(() => {
+    notificationState.setEmailCopied('success');
+    setTimeout(() => notificationState.setEmailCopied(''), 2000);
+  }, [notificationState]);
 
-  const formItemLayout = {
-    labelCol: {
-      xs: {
-        span: 24,
-      },
-      sm: {
-        span: 8,
-      },
-    },
-    wrapperCol: {
-      xs: {
-        span: 24,
-      },
-      sm: {
-        span: 16,
-      },
-    },
-  };
-  
+  const handlePasswordCopy = useCallback(() => {
+    notificationState.setPasswordCopied('success');
+    setTimeout(() => notificationState.setPasswordCopied(''), 2000);
+  }, [notificationState]);
 
   return (
-    <div>
+    <ConfigProvider theme={modernTheme}>
+      <div className="landing-page">
+        {/* Modern Navbar */}
+        <nav className="modern-navbar">
+          <div className="navbar-content">
+            <div className="logo-section">
+              <div className="logo-wrapper">
+                <img src={logo} alt="ConnectCloud Logo" className="logo-image" />
+                <div className="logo-glow"></div>
+              </div>
+              <div className="brand-text">
+                <span className="brand-name">ConnectCloud</span>
+                <span className="brand-subtitle">Blogs</span>
+              </div>
+            </div>
 
-      {/* Navbar and Signup */}
+            <div className="navbar-actions">
+              <Tooltip title="New here? Sign up to enjoy full functionality and save your work." placement="bottom">
+                <button 
+                  onClick={handleSignup}
+                  className="signup-trigger"
+                  aria-label="Sign up for an account"
+                >
+                  <FaUserPlus />
+                  <span>Sign Up</span>
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+        </nav>
 
-      <div style={{display:'flex', backgroundColor:'#EBE8DB'}}>
+        {/* Hero Section */}
+        <main className="hero-section">
+          <div className="hero-container">
+            {/* Left Content */}
+            <div className="hero-content">
+              <div className="hero-header">
+                <h1 className="hero-title">ConnectCloud Blogs</h1>
+                <div className="hero-gradient"></div>
+              </div>
+              
+              <p className="hero-description">
+                This application provides a robust foundation for managing users and their published content. 
+                Key functionalities include user authentication, profile image handling, and full CRUD operations for blog posts.
+              </p>
 
-        {/* Navbar starts */}
+              <div className="feature-highlights">
+                <div className="feature-item">
+                  <div className="feature-icon">🔐</div>
+                  <span>Secure Authentication</span>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">📝</div>
+                  <span>Blog Management</span>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">☁️</div>
+                  <span>Cloud Storage</span>
+                </div>
+              </div>
+            </div>
 
+            {/* Login Form */}
+            <div className="login-section">
+              <form onSubmit={handleSubmit} className="login-form">
+                <div className="form-header">
+                  <h2>Welcome Back</h2>
+                  <p>Sign in to your account</p>
+                </div>
 
-        <div style={{display:'flex'}}>
-          <span>
-            <img src={logo} style={{height:'50px', width:'60px', marginLeft:'90%',}} />
-          </span>
-          <span style={{marginLeft:'60px', marginTop:'9px', fontSize:'20px', fontWeight:'bold'}}>
-          ConnectCloud Blogs
-          </span>
-        </div>
+                <div className="input-group">
+                  <div className="input-wrapper">
+                    <div className="input-icon">
+                      <FaUserTie />
+                    </div>
+                    <Input
+                      className="modern-input"
+                      type="email"
+                      placeholder="Email Address"
+                      value={authState.username}
+                      onChange={(e) => authState.setUsername(e.target.value)}
+                      required
+                    />
+                    <Tooltip placement="top" title="Enter your email address">
+                      <div className="info-icon">
+                        <IoMdInformationCircleOutline />
+                      </div>
+                    </Tooltip>
+                  </div>
+                </div>
 
+                <div className="input-group">
+                  <div className="input-wrapper">
+                    <div className="input-icon">
+                      <TbPasswordUser />
+                    </div>
+                    <div className="password-input-container">
+                      <Input
+                        className="modern-input password-input"
+                        type={authState.showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={authState.password}
+                        onChange={(e) => authState.setPassword(e.target.value)}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => authState.setShowPassword(!authState.showPassword)}
+                      >
+                        {authState.showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                    <Tooltip placement="top" title="Enter your password">
+                      <div className="info-icon">
+                        <IoMdInformationCircleOutline />
+                      </div>
+                    </Tooltip>
+                  </div>
+                </div>
 
-        {/* Navbar ends */}
-
-        {/* Signup starts */}
-
-
-        <div
-            onClick={handleSignup}
-            style={{
-                paddingTop:'5px',
-                color:'black',
-                cursor:'pointer',
-                fontSize:'25px',
-                textAlign:'center',
-                marginLeft:'75%',
-                marginTop:'5px',
-                borderRadius:'70px', 
-                marginBottom:'14px'
-            }}
-        >
-            <Tooltip title="New here? Sign up to enjoy full functionality and save your work." placement="bottom">
-                <span onClick={handleSignup}>
-                  <FaUserPlus  />
-                </span>
-            </Tooltip>
-        </div>
-
-        {/* Create account form starts */}
-
-        <div>
-          <Notification type={type} message={message} description={description} />
-          <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
-            footer={[
-              <ConfigProvider
-                theme={{                                                    // To change color of antd buttons
-                  token: {
-                    colorPrimary: '#a51d4a',
-                    borderRadius: 6,
-                    colorBgContainer: 'white',
-                  },
-                }}
-              >
-                <Button type="primary" loading={loading} onClick={handleSignUpImages}>
-                  Submit
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={authState.loginLoading}
+                  className="login-button"
+                  size="large"
+                >
+                  Sign In
                 </Button>
-              </ConfigProvider>
-            ]}
-          >
-            <div style={{textAlign:'center', fontSize:'20px', fontWeight:'bold'}}>Sign up</div> <br/>
+              </form>
+            </div>
+          </div>
+        </main>
+
+        {/* Demo Credentials Footer */}
+        <footer className="demo-footer">
+          <div className="demo-credentials">
+            <Text className="footer-text">
+              © {new Date().getFullYear()} ConnectCloud Blogs. All rights reserved.
+            </Text>
+            <div className="credentials-section">
+              <Text className="demo-label">Demo Credentials:</Text>
+              <div className="credential-item">
+                <span>Email: </span>
+                <CopyToClipboard text="demo@cloudconnect.com">
+                  <button className="copy-button" onClick={handleEmailCopy}>
+                    demo@cloudconnect.com
+                  </button>
+                </CopyToClipboard>
+              </div>
+              <div className="credential-item">
+                <span>Password: </span>
+                <CopyToClipboard text="Test@123">
+                  <button className="copy-button" onClick={handlePasswordCopy}>
+                    Test@123
+                  </button>
+                </CopyToClipboard>
+              </div>
+            </div>
+            <Text className="developer-credit">
+              Developed by <a href="https://mehulgarg.netlify.app/" target="_blank" rel="noopener noreferrer">Mehul Garg</a>
+            </Text>
+          </div>
+        </footer>
+
+        {/* Signup Modal */}
+        <Modal
+          open={signupState.isModalOpen}
+          onCancel={() => signupState.setIsModalOpen(false)}
+          className="modern-modal"
+          footer={null}
+          width={600}
+        >
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2 className="modal-title">Create Account</h2>
+              <p className="modal-subtitle">Join ConnectCloud Blogs today</p>
+            </div>
+
             <Form
-             {...formItemLayout}
               form={form}
-              onFinish={handleSignupSubmit}
-              name="register"
+              onFinish={handleSignUpImages}
+              layout="vertical"
+              className="signup-form"
             >
               <Form.Item
                 name="email"
-                label="E-mail"
+                label="Email Address"
                 rules={[
-                  {
-                    type: 'email',
-                    message: 'The input is not valid E-mail!',
-                  },
-                  {
-                    required: true,
-                    message: 'Please input your E-mail!',
-                  },
+                  { type: 'email', message: 'Please enter a valid email address!' },
+                  { required: true, message: 'Please input your email!' },
                 ]}
               >
-                <div style={{display:'flex'}}>                  
-                  <Input 
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                    }}
+                <div className="form-input-wrapper">
+                  <Input
+                    className="modern-form-input"
+                    placeholder="Enter your email address"
+                    onChange={(e) => signupState.setEmail(e.target.value)}
                   />
-                  <Tooltip placement="top" title="Enter Email ID" >
-                    <span style={{cursor:'pointer', marginLeft:'10px',fontSize:'20px'}}>
-                      <IoMdInformationCircleOutline/>
-                    </span>
+                  <Tooltip placement="top" title="Enter your email address">
+                    <div className="form-info-icon">
+                      <IoMdInformationCircleOutline />
+                    </div>
                   </Tooltip>
                 </div>
               </Form.Item>
+
               <Form.Item
-                  name="password"
-                  label="Password"
-                  
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input your password!',
-                    },
-                    {
-                      validator: validatePassword,
-                    },
-                  ]}
-                  hasFeedback
+                name="password"
+                label="Password"
+                rules={[
+                  { required: true, message: 'Please input your password!' },
+                  { validator: validatePassword },
+                ]}
+                hasFeedback
               >
-                <div style={{display:'flex'}}>
+                <div className="form-input-wrapper">
                   <Input.Password
-                      onChange={(event) => {
-                        setNewPassword(event.target.value);
-                      }}
+                    className="modern-form-input"
+                    placeholder="Create a strong password"
+                    onChange={(e) => signupState.setNewPassword(e.target.value)}
                   />
-                  <Tooltip style={{whiteSpace: 'pre-line'}} placement="top" title={tooltipContent} >
-                    <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
-                      <IoMdInformationCircleOutline/>
-                    </span>
+                  <Tooltip placement="top" title={tooltipContent}>
+                    <div className="form-info-icon">
+                      <IoMdInformationCircleOutline />
+                    </div>
                   </Tooltip>
                 </div>
               </Form.Item>
+
               <Form.Item
                 name="confirm"
                 label="Confirm Password"
                 dependencies={['password']}
                 hasFeedback
                 rules={[
-                  {
-                    required: true,
-                    message: 'Please confirm your password!',
-                  },
+                  { required: true, message: 'Please confirm your password!' },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
                       if (!value || getFieldValue('password') === value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error('The new password that you entered do not match!'));
+                      return Promise.reject(new Error('Passwords do not match!'));
                     },
                   }),
                 ]}
               >
-                <div style={{display:'flex'}}>
-                  <Input.Password  onChange={(event) => {
-                    setConfirmPassword(event.target.value);
-                  }}/>
-                  <Tooltip placement="top" title="Please re-enter your password!" >
-                    <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
-                      <IoMdInformationCircleOutline/>
-                    </span>
+                <div className="form-input-wrapper">
+                  <Input.Password
+                    className="modern-form-input"
+                    placeholder="Confirm your password"
+                    onChange={(e) => signupState.setConfirmPassword(e.target.value)}
+                  />
+                  <Tooltip placement="top" title="Re-enter your password">
+                    <div className="form-info-icon">
+                      <IoMdInformationCircleOutline />
+                    </div>
                   </Tooltip>
                 </div>
               </Form.Item>
-              <Form.Item name="blogimage" label="Image">      
-                <div style={{display:'flex', marginTop:'5px'}}>
-                    <Tooltip style={{whiteSpace: 'pre-line', marginTop:'5px'}} placement="top" title="Upload blog image in jpg/png format" >
-                        <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
-                        <IoMdInformationCircleOutline/>
-                        </span>
-                    </Tooltip>
-                    <input style={{marginLeft:"10px", marginTop:'5px'}} onChange={(e)=> onfileChange(e)} type="file" />
 
+              <Form.Item name="profileImage" label="Profile Image (Optional)">
+                <div className="file-upload-wrapper">
+                  <div className="file-upload-area">
+                    <MdCloudUpload className="upload-icon" />
+                    <p className="upload-text">Click to upload or drag and drop</p>
+                    <p className="upload-subtitle">PNG, JPG up to 5MB</p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="file-input"
+                    />
+                  </div>
+                  {signupState.file && (
+                    <div className="file-selected">
+                      <span>Selected: {signupState.file.name}</span>
+                    </div>
+                  )}
                 </div>
               </Form.Item>
+
+              <div className="modal-actions">
+                <Button
+                  onClick={() => signupState.setIsModalOpen(false)}
+                  className="cancel-button"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={signupState.loading}
+                  className="submit-button"
+                >
+                  Create Account
+                </Button>
+              </div>
             </Form>
-          </Modal>
-          
-        </div>
-        {/* Create account form ends */}
-
-
-        {/* Signup ends */}
-        
-      </div>
-
-      {/* Landing page information starts */}
-
-
-      <div style={{ overflowX: "hidden", minHeight:'91.5vh', backgroundColor:'#EBE8DB', height:'100%', width: "100%" }}>
-        <div style={{ display: "flex", backgroundColor:'white', borderRadius:'30px', marginLeft:'30px', marginRight:'30px', marginTop:'3%', height:'500px', boxShadow: '0 4px 4px 0 rgb(60 64 67 / 30%), 0 8px 12px 6px rgb(60 64 67 / 15%)'}}>
-          
-          
-          <div
-            style={{
-              width: "50%",
-              textAlign: "justify",
-              marginLeft: "60px",
-              marginTop: "2%",
-              marginRight: "20px",
-              fontSize: "20px",
-            }}
-          >
-            <div style={{ fontWeight: "bold", color: "#a51d4a", marginBottom:'60px', fontSize:'40px' }}>  
-              ConnectCloud Blogs
-            </div>
-            <span style={{ fontWeight: "bold", color: "#a51d4a" }}>
-              {" "}
-
-              
-            </span>{" "}
-          
-                This application provides a robust foundation for managing users and their published content. Key functionalities include user authentication, profile image handling, and full CRUD operations for blog posts.
-              <br/>
-              <br/>
-              <br/>
-          
           </div>
+        </Modal>
 
-          {/* Login form starts */}
-
-          <div style={{ width: "50%" }}>
-            <form
-              style={{ width: "100%", marginTop: "20%", marginLeft: "5%" }}
-              onSubmit={handleSubmit}
-            >
-              <div className="input-container">
-                <span style={{ fontSize: "30px", marginRight:'1%', color:'#a51d4a' }}>
-                  <FaUserTie  />
-                </span>
-                <Input
-                  className="input-field"
-                  type="text"
-                  width={400}
-                  placeholder="Email ID"
-                  name="usrnm"
-                  value={username}
-                  required
-                  onChange={(event) => {
-                    setUsername(event.target.value);
-                  }}
-                />
-                <Tooltip placement="top" title="Enter Email ID" >
-                  <span style={{cursor:'pointer', marginTop:'10px', marginLeft:'10px',fontSize:'20px'}}>
-                    <IoMdInformationCircleOutline/>
-                  </span>
-                </Tooltip>
-              </div>
-              <br/>
-              <div className="input-container">
-                <span style={{ fontSize: "30px", color:'#a51d4a' }}>
-                  <TbPasswordUser  />
-                </span>
-                <Input.Password
-                  style={{ marginLeft: "2%" }}
-                  className="input-field"
-                  type="password"
-                  value={password}
-                  placeholder="Password"
-                  name="psw"
-                  required
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-                <Tooltip placement="top" title="Enter Password" >
-                  <span style={{cursor:'pointer', marginTop:'10px', marginLeft:'10px',fontSize:'20px'}}>
-                    <IoMdInformationCircleOutline/>
-                  </span>
-                </Tooltip>
-              </div>
-
-              <div style={{ display: "flex",marginTop:'5%' }}>
-
-                  <ConfigProvider
-                    theme={{                                                    // To change color of antd buttons
-                      token: {
-                        colorPrimary: '#a51d4a',
-                        borderRadius: 6,
-                        colorBgContainer: 'white',
-                      },
-                    }}
-                  >
-                    <Button onClick={handleSubmit} variant="filled" loading={loginLoading} style={{marginRight:'10px'}}>
-                      Login
-                    </Button>
-                  </ConfigProvider>
-              </div>
-            </form>
-          </div>
-
-          {/* Login form end */}
-
-        </div>
-
+        {/* Notifications */}
+        <Notification 
+          type={notificationState.type} 
+          message={notificationState.message} 
+          description={notificationState.description} 
+        />
+        <Notification 
+          type={notificationState.emailCopied} 
+          message="Copied to clipboard" 
+          description="Email ID copied to clipboard"
+        />
+        <Notification 
+          type={notificationState.passwordCopied} 
+          message="Copied to clipboard" 
+          description="Password copied to clipboard"
+        />
       </div>
-    </div>
+    </ConfigProvider>
   );
 }

@@ -1,9 +1,67 @@
 import {useEffect, useState} from "react";
-import { Tooltip, Input, Modal, Button, ConfigProvider, Form, Table , Popconfirm} from "antd";
+import { Tooltip, Input, Modal, Button, ConfigProvider, Form, Table , Popconfirm, Typography } from "antd";
 import { FileSyncOutlined, DeleteOutlined } from '@ant-design/icons';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import axios from 'axios';
 import Notification from "../features/notification";
+import { MdCloudUpload } from "react-icons/md";
+    
+const modernTheme = {
+    token: {
+        colorPrimary: '#6366f1',
+        colorSuccess: '#10b981',
+        colorWarning: '#f59e0b',
+        colorError: '#ef4444',
+        colorInfo: '#6366f1',
+        borderRadius: 12,
+        borderRadiusLG: 16,
+        borderRadiusSM: 8,
+        borderRadiusXS: 6,
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontSize: 14,
+        fontSizeLG: 16,
+        fontSizeXL: 18,
+        marginXS: 8,
+        marginSM: 12,
+        margin: 16,
+        marginMD: 20,
+        marginLG: 24,
+        marginXL: 32,
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        boxShadowSecondary: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        controlHeight: 44,
+        controlHeightLG: 48,
+        controlHeightSM: 36,
+    },
+    components: {
+        Table: {
+            headerBg: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            headerColor: '#1e293b',
+            rowHoverBg: '#f8fafc',
+            borderColor: '#f1f5f9',
+            headerSplitColor: '#e2e8f0',
+        },
+        Modal: {
+            borderRadius: 24,
+            headerBg: 'transparent',
+            contentBg: 'white',
+        },
+        Button: {
+            borderRadius: 12,
+            fontWeight: 600,
+        },
+        Input: {
+            borderRadius: 12,
+            paddingBlock: 12,
+            paddingInline: 16,
+        },
+        Form: {
+            labelFontSize: 14,
+            labelColor: '#374151',
+            labelFontWeight: 600,
+        },
+    },
+};
 
 export default function Dashboard(){
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,16 +79,22 @@ export default function Dashboard(){
     const [message, setMessage] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
     const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(4);
+
 
     const blogGetApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/get-blogs"
     const blogUpdateApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/update"
     const blogPostApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/post"
     const blogDeleteApi="https://6bx93syy1g.execute-api.us-east-1.amazonaws.com/blog/delete"
     
+    const { Text } = Typography;
+
     const handleNewBlog=()=>{
         setIsModalOpen(true);
     }
-    
+
+
     const handleOk = () => {
         setIsModalOpen(false);
     };
@@ -201,182 +265,220 @@ export default function Dashboard(){
     };
 
     return (
-        <div>
-            <Notification type={type} message={message} description={notificationDescription} />
 
-            <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
-                footer={[
-                <ConfigProvider
-                    theme={{                                                    // To change color of antd buttons
-                        token: {
-                            colorPrimary: '#a51d4a',
-                            borderRadius: 6,
-                            colorBgContainer: 'white',
-                        },
-                    }}
-                >
-                    <Button type="primary" loading={loading} onClick={handleNewBlogSubmit}>
-                        Save 
-                    </Button>
-                </ConfigProvider>
-                ]}
-            >
-                <div style={{textAlign:'center', fontSize:'20px', fontWeight:'bold'}}>Create Blog</div> <br/>
-                
-                <Form>
-                    <Form.Item name="title" label="Title">
-                        <div style={{display:'flex'}}>                  
-                        <Input 
-                            onChange={(event) => {
-                                setTitle(event.target.value);
-                            }}
-                        />
-                        <Tooltip placement="top" title="Enter Blog Title" >
-                            <span style={{cursor:'pointer', marginLeft:'10px',fontSize:'20px'}}>
-                                <IoMdInformationCircleOutline/>
-                            </span>
-                        </Tooltip>
-                        </div>
-                    </Form.Item>
-                    <Form.Item name="description" label="Description">
-                        <div style={{display:'flex'}}>
-                        <TextArea rows={4} 
-                            onChange={(event) => {
-                                setDescription(event.target.value);
-                            }}
-                        />
-                        <Tooltip style={{whiteSpace: 'pre-line'}} placement="top" title="Enter Blog Description" >
-                            <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
-                            <IoMdInformationCircleOutline/>
-                            </span>
-                        </Tooltip>
-                        </div>
-                    </Form.Item>
-                    <Form.Item name="blogimage" label="Image">
-                        <div style={{display:'flex', marginTop:'5px'}}>
-                            <Tooltip style={{whiteSpace: 'pre-line', marginTop:'5px'}} placement="top" title="Upload blog image in jpg/png format" >
-                                <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
-                                <IoMdInformationCircleOutline/>
-                                </span>
-                            </Tooltip>
-                            <input style={{marginLeft:"10px", marginTop:'5px'}} onChange={(e)=> onfileChange(e)} type="file" />
+            <ConfigProvider theme={modernTheme}>
+                <div className="dashboardContainer">
+                    <Notification type={type} message={message} description={notificationDescription} />
 
-                        </div>
-                    </Form.Item>
-                </Form>
-
-            </Modal>
-
-            <Modal open={isUpdateModalOpen} onOk={handleUpdateOk} onCancel={handleUpdateCancel}
-                footer={[
-                <ConfigProvider
-                    theme={{                                                    // To change color of antd buttons
-                    token: {
-                        colorPrimary: '#a51d4a',
-                        borderRadius: 6,
-                        colorBgContainer: 'white',
-                    },
-                    }}
-                >
-                    <Button type="primary" loading={loading} onClick={handleUpdateBlogSubmit}>
-                        Save update
-                    </Button>
-                </ConfigProvider>
-                ]}
-            >
-                <div style={{textAlign:'center', fontSize:'20px', fontWeight:'bold'}}>Update Blog</div> <br/>
-                
-                <Form>
-                    <Form.Item name="title" label="Title">
-                        <div style={{display:'flex'}}>                  
-                        <Input 
-                            onChange={(event) => {
-                                setUpdateTitle(event.target.value);
-                            }}
-                        />
-                        <Tooltip placement="top" title="Enter Blog Title" >
-                            <span style={{cursor:'pointer', marginLeft:'10px',fontSize:'20px'}}>
-                            <IoMdInformationCircleOutline/>
-                            </span>
-                        </Tooltip>
-                        </div>
-                    </Form.Item>
-                    <Form.Item name="description" label="Description">
-                        <div style={{display:'flex'}}>
-                        <TextArea rows={4} 
-                            onChange={(event) => {
-                                setUpdateDescription(event.target.value);
-                            }}
-                        />
-                        <Tooltip style={{whiteSpace: 'pre-line'}} placement="top" title="Enter Blog Description" >
-                            <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
-                            <IoMdInformationCircleOutline/>
-                            </span>
-                        </Tooltip>
-                        </div>
-                    </Form.Item>
-                    <Form.Item name="blogimage" label="Image">
-                        
-                        <div style={{display:'flex', marginTop:'5px'}}>
-                            <Tooltip style={{whiteSpace: 'pre-line', marginTop:'5px'}} placement="top" title="Upload blog image in jpg/png format" >
-                                <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
-                                <IoMdInformationCircleOutline/>
-                                </span>
-                            </Tooltip>
-                            <input style={{marginLeft:"10px", marginTop:'5px'}} onChange={(e)=> onfileChange(e)} type="file" />
-
-                        </div>
-                    </Form.Item>
-                </Form>
-
-            </Modal>
-
-            <div>
-                <h1 style={{textAlign:'center'}}>Welcome to Your Dashboard!</h1>
-                <div>
-                    <section>
-                        <h2 style={{
-                        fontSize: '1.5em',
-                        display:'flex',
-                        fontWeight: 'bold',
-                        color: '#333',
-                        marginBottom: '15px',
-                        borderBottom: '2px solid #ccc',
-                        paddingBottom: '5px',
-                        }}>
-                            <p style={{marginLeft:"2%"}}>Published Blogs</p> 
-                            <ConfigProvider
-                                theme={{                                                   
-                                    token: {
+                    <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
+                        footer={[
+                        <ConfigProvider
+                            theme={{                                                    // To change color of antd buttons
+                                token: {
                                     colorPrimary: '#a51d4a',
                                     borderRadius: 6,
                                     colorBgContainer: 'white',
-                                    },
-                                }}
-                                >
-                                <Button onClick={handleNewBlog} variant="filled" style={{marginLeft:'75%', marginTop:'20px'}}>
-                                    Create New Blog
-                                </Button>
-                            </ConfigProvider>
-                        </h2>
-                    </section>
+                                },
+                            }}
+                        >
+                            <Button type="primary" loading={loading} onClick={handleNewBlogSubmit}>
+                                Save 
+                            </Button>
+                        </ConfigProvider>
+                        ]}
+                    >
+                        <div style={{textAlign:'center', fontSize:'20px', fontWeight:'bold'}}>Create Blog</div> <br/>
+                        
+                        <Form>
+                            <Form.Item name="title" label="Title">
+                                <div style={{display:'flex'}}>                  
+                                <Input 
+                                    onChange={(event) => {
+                                        setTitle(event.target.value);
+                                    }}
+                                />
+                                <Tooltip placement="top" title="Enter Blog Title" >
+                                    <span style={{cursor:'pointer', marginLeft:'10px',fontSize:'20px'}}>
+                                        <IoMdInformationCircleOutline/>
+                                    </span>
+                                </Tooltip>
+                                </div>
+                            </Form.Item>
+                            <Form.Item name="description" label="Description">
+                                <div style={{display:'flex'}}>
+                                <TextArea rows={4} 
+                                    onChange={(event) => {
+                                        setDescription(event.target.value);
+                                    }}
+                                />
+                                <Tooltip style={{whiteSpace: 'pre-line'}} placement="top" title="Enter Blog Description" >
+                                    <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
+                                    <IoMdInformationCircleOutline/>
+                                    </span>
+                                </Tooltip>
+                                </div>
+                            </Form.Item>
+                            <Form.Item name="blogimage" label="Image">
+                                <div style={{display:'flex', marginTop:'5px'}}>
+                                    <Tooltip style={{whiteSpace: 'pre-line', marginTop:'5px'}} placement="top" title="Upload blog image in jpg/png format" >
+                                        <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
+                                        <IoMdInformationCircleOutline/>
+                                        </span>
+                                    </Tooltip>
+                                    <input style={{marginLeft:"10px", marginTop:'5px'}} onChange={(e)=> onfileChange(e)} type="file" />
+
+                                </div>
+                            </Form.Item>
+                        </Form>
+
+                    </Modal>
+
+                    <Modal open={isUpdateModalOpen} onOk={handleUpdateOk} onCancel={handleUpdateCancel}
+                        footer={[
+                        <ConfigProvider
+                            theme={{                                                    // To change color of antd buttons
+                            token: {
+                                colorPrimary: '#a51d4a',
+                                borderRadius: 6,
+                                colorBgContainer: 'white',
+                            },
+                            }}
+                        >
+                            <Button type="primary" loading={loading} onClick={handleUpdateBlogSubmit}>
+                                Save update
+                            </Button>
+                        </ConfigProvider>
+                        ]}
+                    >
+                        <div style={{textAlign:'center', fontSize:'20px', fontWeight:'bold'}}>Update Blog</div> <br/>
+                        
+                        <Form>
+                            <Form.Item name="title" label="Title">
+                                <div style={{display:'flex'}}>                  
+                                <Input 
+                                    onChange={(event) => {
+                                        setUpdateTitle(event.target.value);
+                                    }}
+                                />
+                                <Tooltip placement="top" title="Enter Blog Title" >
+                                    <span style={{cursor:'pointer', marginLeft:'10px',fontSize:'20px'}}>
+                                    <IoMdInformationCircleOutline/>
+                                    </span>
+                                </Tooltip>
+                                </div>
+                            </Form.Item>
+                            <Form.Item name="description" label="Description">
+                                <div style={{display:'flex'}}>
+                                <TextArea rows={4} 
+                                    onChange={(event) => {
+                                        setUpdateDescription(event.target.value);
+                                    }}
+                                />
+                                <Tooltip style={{whiteSpace: 'pre-line'}} placement="top" title="Enter Blog Description" >
+                                    <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
+                                    <IoMdInformationCircleOutline/>
+                                    </span>
+                                </Tooltip>
+                                </div>
+                            </Form.Item>
+
+                            <Form.Item name="profileImage" label="Blog Image (Optional)">
+                                <div className="file-upload-wrapper">
+                                    <div className="file-upload-area">
+                                        <MdCloudUpload className="upload-icon" />
+                                        <p className="upload-text">Click to upload or drag and drop</p>
+                                        <p className="upload-subtitle">PNG, JPG up to 5MB</p>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e)=> onfileChange(e)}
+                                            className="file-input"
+                                        />
+                                    </div>
+                                </div>
+                            </Form.Item>
+
+                            {/* <Form.Item name="blogimage" label="Image">
+                                
+                                <div style={{display:'flex', marginTop:'5px'}}>
+                                    <Tooltip style={{whiteSpace: 'pre-line', marginTop:'5px'}} placement="top" title="Upload blog image in jpg/png format" >
+                                        <span style={{cursor:'pointer',  marginLeft:'10px',fontSize:'20px'}}>
+                                        <IoMdInformationCircleOutline/>
+                                        </span>
+                                    </Tooltip>
+                                    <input style={{marginLeft:"10px", marginTop:'5px'}} onChange={(e)=> onfileChange(e)} type="file" />
+
+                                </div>
+                            </Form.Item> */}
+                        </Form>
+
+                    </Modal>
+
+                    <div>
+                        <div>
+                            <section>
+                                <h2 style={{
+                                fontSize: '1.5em',
+                                display:'flex',
+                                fontWeight: 'bold',
+                                color: '#333',
+                                marginBottom: '15px',
+                                borderBottom: '2px solid #ccc',
+                                paddingBottom: '5px',
+                                }}>
+                                    <p style={{marginLeft:"2%"}}>Published Blogs</p> 
+                                    <ConfigProvider
+                                        theme={{                                                   
+                                            token: {
+                                            colorPrimary: '#a51d4a',
+                                            borderRadius: 6,
+                                            colorBgContainer: 'white',
+                                            },
+                                        }}
+                                        >
+                                        <Button onClick={handleNewBlog} variant="filled" style={{marginLeft:'75%', marginTop:'20px'}}>
+                                            Create New Blog
+                                        </Button>
+                                    </ConfigProvider>
+                                </h2>
+                            </section>
+
+                        </div>
+                        <Table
+                            columns={columns}
+                            expandable={{
+                                expandedRowRender: record => <p style={{ margin: 0 }}>{record.description}</p>,
+                                rowExpandable: record => true,
+                                expandedRowKeys: expandedRowKeys,
+                                onExpand: onExpand,
+                            }}
+                            dataSource={blogData}
+                            bordered
+                            loading={tableLoading}
+                            style={{ margin: '20px' }}
+                            rowKey="blogId"
+                            pagination={{
+                                current: currentPage,
+                                pageSize: pageSize,
+                                total: blogData?.length || 0,
+                                showSizeChanger: false,
+                                showQuickJumper: false,
+                                position: ['bottomRight'],
+                                showTotal: (total, range) => 
+                                    `${range[0]}-${range[1]} of ${total} blogs`,
+                                className: 'custom-pagination',
+                                onChange: (page, size) => {
+                                    setCurrentPage(page);
+                                    setPageSize(size);
+                                },
+                                responsive: true,
+                                size: window.innerWidth > 768 ? 'default' : 'small'
+                            }}
+                        />
+
+                    </div>
 
                 </div>
-                <Table
-                    columns={columns}
-                    expandable={{
-                        expandedRowRender: record => <p style={{ margin: 0 }}>{record.description}</p>,
-                        rowExpandable: record => true,
-                        expandedRowKeys: expandedRowKeys,
-                        onExpand: onExpand,
-                    }}
-                    dataSource={blogData}
-                    bordered
-                    loading={tableLoading}
-                    style={{ margin: '20px' }}
-                    rowKey="blogId"
-                />
-            </div>
-        </div>
+            </ConfigProvider>
     )
 }
