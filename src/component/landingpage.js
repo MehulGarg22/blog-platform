@@ -10,7 +10,6 @@ import Notification from "./features/notification";
 import axios from 'axios';
 import logo from '../assets/cloudxsuite_logo.png';
 import { useNavigate } from "react-router-dom";
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 // Custom hooks for better state management
 const useAuthState = () => {
@@ -450,19 +449,19 @@ export default function LandingPage() {
               <Text className="demo-label">Demo Credentials:</Text>
               <div className="credential-item">
                 <span>Email: </span>
-                <CopyToClipboard text="demo@cloudconnect.com">
+                {/* <CopyToClipboard text="demo@cloudconnect.com"> */}
                   <button className="copy-button" onClick={handleEmailCopy}>
                     demo@cloudconnect.com
                   </button>
-                </CopyToClipboard>
+                {/* </CopyToClipboard> */}
               </div>
               <div className="credential-item">
                 <span>Password: </span>
-                <CopyToClipboard text="Test@123">
+                {/* <CopyToClipboard text="Test@123"> */}
                   <button className="copy-button" onClick={handlePasswordCopy}>
                     Test@123
                   </button>
-                </CopyToClipboard>
+                {/* </CopyToClipboard> */}
               </div>
             </div>
             <Text className="developer-credit">
