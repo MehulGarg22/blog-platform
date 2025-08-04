@@ -1,66 +1,40 @@
-/* Modern Navbar Styles */
-.login-navbar {
+/* Modern Dashboard Navbar with Landing Page Styling */
+.modern-navbar {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   position: sticky;
   top: 0;
   z-index: 1000;
-  width: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.95) 0%,
-    rgba(139, 92, 246, 0.95) 100%
-  );
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 1px 3px 0 rgba(0, 0, 0, 0.1),
-    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 16px 0;
 }
 
-.navbar-gradient-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  pointer-events: none;
-}
-
-.navbar-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.navbar-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 clamp(16px, 4vw, 32px);
-  height: 70px;
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Logo and title section */
-.logo-title-section {
+/* Logo section styling (same as landing page) */
+.logo-section {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.logo-container {
+.logo-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
 }
 
-.logo-img {
-  width: 40px;
-  height: 40px;
+.logo-image {
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   object-fit: cover;
   transition: transform 0.3s ease;
@@ -73,108 +47,105 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
   filter: blur(8px);
   transition: all 0.3s ease;
   z-index: 1;
 }
 
-.logo-container:hover .logo-img {
+.logo-wrapper:hover .logo-image {
   transform: scale(1.05);
 }
 
-.logo-container:hover .logo-glow {
+.logo-wrapper:hover .logo-glow {
   filter: blur(12px);
-  background: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
 }
 
-.title-container {
+.brand-text {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.title-text {
-  font-size: 1.25rem;
+.brand-name {
+  font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: #1e293b;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
-.title-subtext {
+.brand-subtitle {
   font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  color: #6366f1;
   line-height: 1;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-/* Profile section */
-.profile-section {
+/* Profile trigger styling (adapted from landing page button style) */
+.navbar-actions {
   position: relative;
 }
 
-.profile-trigger {
-  background: none;
+.profile-trigger-modern {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
   border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.875rem;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
   transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.profile-trigger:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.profile-trigger:focus {
-  outline: 2px solid rgba(255, 255, 255, 0.5);
-  outline-offset: 2px;
-}
-
-.profile-container {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: relative;
+  overflow: hidden;
+}
+
+.profile-trigger-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.profile-trigger-modern:hover::before {
+  left: 100%;
+}
+
+.profile-trigger-modern:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.profile-container-modern {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.profile-ring {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 4px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+/* Profile avatar styling */
+.profile-avatar-modern {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  transition: all 0.3s ease;
-  pointer-events: none;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.profile-trigger:hover .profile-ring {
-  border-color: rgba(255, 255, 255, 0.6);
-  transform: scale(1.05);
-}
-
-.profile-chevron {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
-  transition: transform 0.2s ease;
-}
-
-.profile-chevron.chevron-open {
-  transform: rotate(180deg);
-}
-
-/* Avatar components */
 .default-user-icon-wrapper {
   display: flex;
   align-items: center;
@@ -185,34 +156,53 @@
 }
 
 .avatar-small {
+  width: 24px;
+  height: 24px;
+}
+
+.avatar-default {
+  width: 28px;
+  height: 28px;
+}
+
+.avatar-large {
   width: 32px;
   height: 32px;
 }
 
-.avatar-default {
-  width: 40px;
-  height: 40px;
-}
-
-.avatar-large {
-  width: 48px;
-  height: 48px;
-}
-
 .default-user-icon {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .profile-image {
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
 }
 
-/* Menu content */
-.menu-content {
+.profile-email {
+  font-weight: 600;
+  font-size: 0.875rem;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-chevron-modern {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.profile-chevron-modern.chevron-open {
+  transform: rotate(180deg);
+}
+
+/* Menu content styling (enhanced version of landing page modal) */
+.menu-content-modern {
   background: white;
   border-radius: 16px;
   padding: 16px 0;
@@ -221,9 +211,10 @@
     0 10px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
-.menu-header {
+.menu-header-modern {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -231,16 +222,16 @@
   border-bottom: none;
 }
 
-.user-avatar-container {
+.user-avatar-container-modern {
   flex-shrink: 0;
 }
 
-.user-info {
+.user-info-modern {
   flex: 1;
   min-width: 0;
 }
 
-.menu-email {
+.menu-email-modern {
   font-size: 0.875rem;
   font-weight: 600;
   color: #1f2937;
@@ -250,7 +241,7 @@
   text-overflow: ellipsis;
 }
 
-.user-status {
+.user-status-modern {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -268,29 +259,29 @@
   color: #6b7280;
 }
 
-.status-indicator {
+.status-indicator-modern {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   display: inline-block;
 }
 
-.status-online .status-indicator {
+.status-online .status-indicator-modern {
   background: #10b981;
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
-.status-offline .status-indicator {
+.status-offline .status-indicator-modern {
   background: #6b7280;
 }
 
-.custom-divider {
+.custom-divider-modern {
   margin: 12px 20px;
   border-color: #f3f4f6;
 }
 
-/* Signout section */
-.signout-section {
+/* Signout section styling (enhanced from landing page button) */
+.signout-section-modern {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -301,19 +292,21 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
+  border-radius: 8px;
+  margin: 0 8px;
 }
 
-.signout-section:hover {
+.signout-section-modern:hover {
   background: #fef2f2;
 }
 
-.signout-section:focus {
+.signout-section-modern:focus {
   outline: 2px solid #ef4444;
-  outline-offset: -2px;
+  outline-offset: 2px;
   background: #fef2f2;
 }
 
-.signout-icon {
+.signout-icon-modern {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -325,107 +318,136 @@
   transition: all 0.2s ease;
 }
 
-.signout-section:hover .signout-icon {
+.signout-section-modern:hover .signout-icon-modern {
   background: #dc2626;
   color: white;
 }
 
-.signout-text {
+.signout-text-modern {
   flex: 1;
   font-size: 0.875rem;
   font-weight: 500;
   color: #374151;
 }
 
-.signout-arrow {
+.signout-arrow-modern {
   color: #9ca3af;
   font-size: 16px;
   transition: transform 0.2s ease;
 }
 
-.signout-section:hover .signout-arrow {
+.signout-section-modern:hover .signout-arrow-modern {
   transform: translateX(2px);
   color: #dc2626;
 }
 
-/* Responsive design */
+/* Responsive design (matching landing page) */
+@media (max-width: 1024px) {
+  .navbar-content {
+    padding: 0 20px;
+  }
+  
+  .menu-content-modern {
+    min-width: 260px;
+    margin-right: 20px;
+  }
+}
+
 @media (max-width: 768px) {
-  .navbar-wrapper {
+  .navbar-content {
     padding: 0 16px;
-    height: 60px;
   }
   
-  .title-text {
-    font-size: 1.125rem;
+  .brand-name {
+    font-size: 1.25rem;
   }
   
-  .title-subtext {
+  .brand-subtitle {
     font-size: 0.6875rem;
   }
   
-  .menu-content {
-    min-width: 260px;
+  .profile-email {
+    display: none;
+  }
+  
+  .profile-trigger-modern {
+    padding: 6px 12px;
+  }
+  
+  .menu-content-modern {
+    min-width: 240px;
     margin-right: 16px;
   }
   
-  .logo-container {
+  .logo-image {
     width: 40px;
     height: 40px;
   }
   
-  .logo-img {
-    width: 32px;
-    height: 32px;
+  .logo-glow {
+    width: 48px;
+    height: 48px;
   }
 }
 
 @media (max-width: 480px) {
-  .navbar-wrapper {
+  .navbar-content {
     gap: 12px;
   }
   
-  .logo-title-section {
+  .logo-section {
     gap: 12px;
   }
   
-  .title-container {
+  .brand-text {
     display: none;
   }
   
-  .menu-content {
-    min-width: 240px;
+  .profile-trigger-modern {
+    padding: 6px 10px;
+    font-size: 0.8125rem;
+  }
+  
+  .menu-content-modern {
+    min-width: 220px;
+  }
+  
+  .menu-header-modern {
+    padding: 12px 16px;
+  }
+  
+  .signout-section-modern {
+    padding: 10px 16px;
   }
 }
 
-/* Accessibility improvements */
+/* Accessibility improvements (matching landing page) */
 @media (prefers-reduced-motion: reduce) {
-  .logo-img,
-  .profile-ring,
-  .profile-chevron,
-  .signout-section,
-  .signout-arrow {
+  .logo-image,
+  .profile-chevron-modern,
+  .signout-section-modern,
+  .signout-arrow-modern {
     transition: none;
   }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
-  .login-navbar {
+  .modern-navbar {
     border-bottom: 2px solid;
   }
   
-  .profile-ring {
-    border-width: 3px;
+  .menu-content-modern {
+    border: 2px solid #000;
   }
 }
 
 /* Focus visible for better keyboard navigation */
-.profile-trigger:focus-visible {
-  outline: 2px solid white;
+.profile-trigger-modern:focus-visible {
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
 
-.signout-section:focus-visible {
+.signout-section-modern:focus-visible {
   outline: 2px solid #ef4444;
-  outline-offset: -2px;
+  outline-offset: 2px;
 }

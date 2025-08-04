@@ -2,24 +2,22 @@ import React, { useMemo, useCallback, useState, useEffect } from "react";
 import './navbar.css';
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserOutlined, LogoutOutlined, DownOutlined } from "@ant-design/icons";
-import { Menu, Divider } from "@aws-amplify/ui-react";
+import { Menu, Divider, Tooltip } from "@aws-amplify/ui-react";
 import logo from '../../assets/cloudxsuite_logo.png';
 
-// Custom hook for user session management
+// Custom hook for user session management (unchanged)
 const useUserSession = () => {
   const [userEmail, setUserEmail] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
-    // Initialize user data
     const email = sessionStorage.getItem('email');
     const picture = sessionStorage.getItem('profilePicture');
     
     setUserEmail(email || '');
     setProfilePicture(picture === 'null' ? null : picture);
 
-    // Monitor online status
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
@@ -35,7 +33,7 @@ const useUserSession = () => {
   return { userEmail, profilePicture, isOnline };
 };
 
-// User avatar component for reusability
+// User avatar component (unchanged functionality, updated styling)
 const UserAvatar = ({ profilePicture, className = "", size = "default" }) => {
   const [imageError, setImageError] = useState(false);
   
@@ -68,7 +66,7 @@ const UserAvatar = ({ profilePicture, className = "", size = "default" }) => {
   );
 };
 
-// Main navbar component
+// Main navbar component with landing page styling
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -80,31 +78,24 @@ export default function Navbar() {
     return location.pathname !== "/";
   }, [location.pathname]);
 
-  // Optimized signout handler
+  // Optimized signout handler (unchanged)
   const handleSignout = useCallback(async () => {
     try {
-      // Clear session data
       const keysToRemove = ['email', 'token', 'profilePicture'];
       keysToRemove.forEach(key => sessionStorage.removeItem(key));
-      
-      // Optional: Call logout API here
-      // await logoutAPI();
-      
-      // Navigate to login
       navigate("/", { replace: true });
     } catch (error) {
       console.error('Signout error:', error);
-      // Still navigate even if cleanup fails
       navigate("/", { replace: true });
     }
   }, [navigate]);
 
-  // Handle menu toggle
+  // Handle menu toggle (unchanged)
   const handleMenuToggle = useCallback(() => {
     setIsMenuOpen(prev => !prev);
   }, []);
 
-  // Handle keyboard navigation
+  // Handle keyboard navigation (unchanged)
   const handleKeyDown = useCallback((event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -117,96 +108,91 @@ export default function Navbar() {
 
   return (
     <nav 
-      className="login-navbar" 
+      className="modern-navbar" 
       role="navigation" 
       aria-label="Main navigation"
     >
-      <div className="navbar-gradient-overlay" aria-hidden="true"></div>
-      
-      <div className="navbar-wrapper">
-        {/* Logo and title section */}
-        <div className="logo-title-section">
-          <div className="logo-container">
+      <div className="navbar-content">
+        {/* Logo section with landing page styling */}
+        <div className="logo-section">
+          <div className="logo-wrapper">
             <img 
               src={logo} 
               alt="ConnectCloud Blogs Logo" 
-              className="logo-img"
-              width="40"
-              height="40"
+              className="logo-image"
             />
             <div className="logo-glow" aria-hidden="true"></div>
           </div>
           
-          <div className="title-container">
-            <span className="title-text">ConnectCloud</span>
-            <span className="title-subtext">Blogs</span>
+          <div className="brand-text">
+            <span className="brand-name">ConnectCloud</span>
+            <span className="brand-subtitle">Blogs</span>
           </div>
         </div>
         
-        {/* Profile menu section */}
-        <div className="profile-section">
+        {/* Profile menu section with landing page styling */}
+        <div className="navbar-actions">
           <Menu
-            className="profile-menu"
+            className="profile-menu-modern"
             isOpen={isMenuOpen}
             onOpenChange={setIsMenuOpen}
             trigger={
               <button
-                className="profile-trigger"
+                className="profile-trigger-modern"
                 onClick={handleMenuToggle}
                 aria-label={`User menu for ${userEmail}`}
                 aria-expanded={isMenuOpen}
                 aria-haspopup="menu"
               >
-                <div className="profile-container">
+                <div className="profile-container-modern">
                   <UserAvatar 
                     profilePicture={profilePicture}
-                    className="profile-avatar"
+                    className="profile-avatar-modern"
                   />
-                  <div className="profile-ring" aria-hidden="true"></div>
                   <DownOutlined 
-                    className={`profile-chevron ${isMenuOpen ? 'chevron-open' : ''}`}
+                    className={`profile-chevron-modern ${isMenuOpen ? 'chevron-open' : ''}`}
                     aria-hidden="true"
                   />
                 </div>
               </button>
             }
           >
-            <div className="menu-content" role="menu">
+            <div className="menu-content-modern" role="menu">
               {/* User info header */}
-              <div className="menu-header" role="menuitem" tabIndex="-1">
-                <div className="user-avatar-container">
+              <div className="menu-header-modern" role="menuitem" tabIndex="-2">
+                <div className="user-avatar-container-modern">
                   <UserAvatar 
                     profilePicture={profilePicture}
                     size="small"
                   />
                 </div>
                 
-                <div className="user-info">
-                  <p className="menu-email" title={userEmail}>
+                <div className="user-info-modern">
+                  <p className="menu-email-modern" title={userEmail}>
                     {userEmail || 'User'}
                   </p>
-                  <span className={`user-status ${isOnline ? 'status-online' : 'status-offline'}`}>
-                    <span className="status-indicator" aria-hidden="true"></span>
+                  <span className={`user-status-modern ${isOnline ? 'status-online' : 'status-offline'}`}>
+                    <span className="status-indicator-modern" aria-hidden="true"></span>
                     {isOnline ? 'Online' : 'Offline'}
                   </span>
                 </div>
               </div>
               
-              <Divider className="custom-divider" />
+              <Divider className="custom-divider-modern" />
               
               {/* Signout section */}
               <button
                 onClick={handleSignout}
                 onKeyDown={handleKeyDown}
-                className="signout-section"
+                className="signout-section-modern"
                 role="menuitem"
                 aria-label="Sign out of your account"
               >
-                <div className="signout-icon">
+                <div className="signout-icon-modern">
                   <LogoutOutlined />
                 </div>
-                <span className="signout-text">Sign Out</span>
-                <div className="signout-arrow" aria-hidden="true">→</div>
+                <span className="signout-text-modern">Sign Out</span>
+                <div className="signout-arrow-modern" aria-hidden="true">→</div>
               </button>
             </div>
           </Menu>
@@ -216,5 +202,5 @@ export default function Navbar() {
   );
 }
 
-// Optional: Export UserAvatar for reuse in other components
+// Export UserAvatar for reuse
 export { UserAvatar };
