@@ -10,6 +10,8 @@ import Notification from "./features/notification";
 import axios from 'axios';
 import logo from '../assets/cloudxsuite_logo.png';
 import { useNavigate } from "react-router-dom";
+import copy from 'copy-text-to-clipboard';
+
 
 // Custom hooks for better state management
 const useAuthState = () => {
@@ -294,12 +296,14 @@ export default function LandingPage() {
 
   // Copy handlers
   const handleEmailCopy = useCallback(() => {
-    notificationState.setEmailCopied('success');
+    notificationState.setEmailCopied('success');  
+    copy('demo@cloudconnect.com');
     setTimeout(() => notificationState.setEmailCopied(''), 2000);
   }, [notificationState]);
 
   const handlePasswordCopy = useCallback(() => {
     notificationState.setPasswordCopied('success');
+    copy('Test@123');
     setTimeout(() => notificationState.setPasswordCopied(''), 2000);
   }, [notificationState]);
 
